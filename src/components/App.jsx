@@ -10,7 +10,7 @@ class App extends Component {
         return (
             <div className="app-wrapper">
                 <h1>Hello World!!!</h1>
-                <NestedComponent/>
+                <NestedComponent passedProp={'Some passed prop'}/>
             </div>
         );
     }

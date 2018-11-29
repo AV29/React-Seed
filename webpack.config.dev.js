@@ -17,6 +17,7 @@ export default {
         filename: 'dev-bundle.js',
         publicPath: '/'
     },
+    mode: 'development',
     target: 'web',
     plugins: [
         new webpack.LoaderOptionsPlugin({
