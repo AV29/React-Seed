@@ -5,7 +5,7 @@ const NestedComponent = props => {
 
     return (
         <Context.Consumer>
-            {({state, actions, instance, setAge}) => {
+            {({state, actions}) => {
                 return (
                     <Fragment>
                         <p>{state.name}</p>
