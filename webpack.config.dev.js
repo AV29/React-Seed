@@ -1,7 +1,7 @@
 /* eslint-disable prefer-template*/
 import webpack from 'webpack';
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-import {DEV_PORT} from './tools/constants';
+import {DEV_PORT, DEVELOPMENT} from './tools/constants';
 
 process.noDeprecation = true;
 
@@ -16,7 +16,7 @@ export default {
         filename: 'dev-bundle.js',
         publicPath: '/'
     },
-    mode: 'development',
+    mode: DEVELOPMENT,
     target: 'web',
     plugins: [
         new webpack.LoaderOptionsPlugin({
@@ -56,9 +56,36 @@ export default {
                         }
                     },
                     {
+                        loader: 'postcss-loader',
+                        options: {
+                            sourceMap: true
+                        }
+                    },
+                    {
                         loader: 'less-loader',
                         options: {
                             sourceMap: true
+                        }
+                    }
+                ]
+            },
+            {
+                test: /\.(jpe?g|png|gif)$/i,
+                loader: 'file-loader'
+            },
+            {
+                test: /\.svg$/,
+                use: [
+                    {
+                        loader: 'babel-loader'
+                    },
+                    {
+                        loader: 'react-svg-loader',
+                        query: {
+                            svgo: {
+                                plugins: [{removeTitle: false}],
+                                floatPrecision: 2
+                            }
                         }
                     }
                 ]
