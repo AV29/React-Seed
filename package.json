@@ -1,5 +1,5 @@
 {
-  "name": "React-seed",
+  "name": "react-seed",
   "version": "0.0.1",
   "description": "React seed application",
   "scripts": {
@@ -24,6 +24,9 @@
     "less": "^3.8.1",
     "less-loader": "~4.1.0",
     "prop-types": "~15.6.0",
+    "react": "^16.6.3",
+    "react-dom": "^16.6.3",
+    "react-router-dom": "^4.3.1",
     "style-loader": "~0.19.1",
     "url-loader": "~1.1.2",
     "webpack": "~3.8.1",
