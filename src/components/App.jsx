@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import NestedComponent from './nested-component/NestedComponent';
 import styled, {ThemeProvider} from 'styled-components';
+import HookExample from "./hooks/HooksSample";
 
 const h1FontSize = 20;
 
@@ -36,6 +37,7 @@ class App extends Component {
           <Title>Hello World!!!</Title>
           <Title theme={secondaryTheme}>Hello World!!!</Title>
           <NestedComponent passedProp={'Some passed prop'}/>
+          <HookExample/>
         </AppWrapper>
       </ThemeProvider>
     );
