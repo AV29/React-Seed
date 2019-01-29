@@ -5,8 +5,9 @@ const initialState = { age: 30 };
 
 function HookExample() {
 
-  const [name, setName] = useState('Anton');
-  const [surname, setSurname] = useState('Vlasik');
+  const name = useFormValue('Anton');
+  const surname = useFormValue('Vlasik');
+
   const [state, dispatch] = useReducer((state, { type, payload }) => {
     switch (type) {
       case 'MAKE_OLDER':
@@ -48,22 +49,32 @@ function HookExample() {
   return (
     <div style={{ width: 500 }}>
       <h1>HOOKS EXAMPLE</h1>
-      <h2>Name: {name}</h2>
-      <h2>Surname: {surname}</h2>
+      <h2>Name: {name.value}</h2>
+      <h2>Surname: {surname.value}</h2>
       <h2>Age: {state.age}</h2>
       <Row label="Name">
-        <input value={name} onChange={({ target: { value } }) => setName(value)}/>
+        <input {...name}/>
       </Row>
       <Row label="Surname">
-        <input value={surname} onChange={({ target: { value } }) => setSurname(value)}/>
+        <input {...surname}/>
       </Row>
       <Row label="Age">
         <button onClick={handleMakeYounger}>-</button>
-        <input type="number" onChange={handleSetAge} value={state.age}/>
+        <input onChange={handleSetAge} value={state.age}/>
         <button onClick={handleMakeOlder}>+</button>
       </Row>
     </div>
   );
+}
+
+function useFormValue(initialValue) {
+  const [value, setValue] = useState(initialValue);
+
+  function handleChange({ target: { value } }) {
+    setValue(value);
+  }
+
+  return { value, onChange: handleChange };
 }
 
 export default HookExample;
