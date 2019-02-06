@@ -1,37 +1,13 @@
 import React, { useState, useReducer } from 'react';
 import Row from '../common/row/Row';
-
-const initialState = { age: 30 };
+import ageReducer from './ageReducer';
 
 function HookExample() {
 
   const name = useFormValue('Anton');
   const surname = useFormValue('Vlasik');
 
-  const [state, dispatch] = useReducer((state, { type, payload }) => {
-    switch (type) {
-      case 'MAKE_OLDER':
-        return {
-          ...state,
-          age: state.age + 1
-        };
-
-      case 'MAKE_YOUNGER':
-        return {
-          ...state,
-          age: state.age - 1
-        };
-
-      case 'SET_AGE':
-        return {
-          ...state,
-          age: payload.age
-        };
-
-      default:
-        return state;
-    }
-  }, initialState);
+  const [state, dispatch] = useReducer(ageReducer.reducer, ageReducer.initialState);
 
   function handleMakeOlder() {
     dispatch({ type: 'MAKE_OLDER' });
