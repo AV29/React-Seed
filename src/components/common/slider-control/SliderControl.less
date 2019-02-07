@@ -1,0 +1,54 @@
+@slider-height: 5px;
+@thumb-height: 20px;
+
+.slider-control {
+  padding: 20px;
+
+  .label {
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+
+  .slider {
+    width: 100%;
+    height: @slider-height;
+    background: #d3d3d3;
+    transition: opacity .2s;
+    position: relative;
+
+    .thumb {
+      width: 7px;
+      height: @thumb-height;
+      border-radius: 4px;
+      background: #666666;
+      cursor: pointer;
+      position: absolute;
+      top: @slider-height / 2;
+      transform: translateY(-50%);
+    }
+
+    .progress-shade {
+      background-color: #288dc8;
+      position: absolute;
+      left: 0;
+      height: 100%;
+    }
+  }
+
+  .labels {
+    width: 100%;
+    position: relative;
+    .labelQWerty {
+      transform: translateX(-50%);
+      &:first-of-type {
+        transform: translateX(0);
+      }
+      &:last-of-type {
+        transform: translateX(-100%);
+      }
+    }
+  }
+}
+
+
