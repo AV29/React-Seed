@@ -1,13 +1,14 @@
 @slider-height: 5px;
 @thumb-height: 20px;
 
-.slider-control {
+.sliderControl {
   padding: 20px;
+  font-size: 1.4rem;
+  user-select: none;
 
   .label {
     margin-bottom: 15px;
-    font-size: 1.4rem;
-    font-weight: 600;
+    font-weight: 400;
   }
 
   .slider {
@@ -25,10 +26,22 @@
       cursor: pointer;
       position: absolute;
       top: @slider-height / 2;
+      border: 1px solid white;
       transform: translateY(-50%);
+
+      .tooltip {
+        visibility: hidden;
+        position: absolute;
+        top: -150%;
+        background: #000000;
+        color: #ffffff;
+        padding: 5px;
+        font-size: 1.2rem;
+        white-space: nowrap;
+      }
     }
 
-    .progress-shade {
+    .fillLower {
       background-color: #288dc8;
       position: absolute;
       left: 0;
@@ -36,17 +49,13 @@
     }
   }
 
-  .labels {
+  .stepLabels {
     width: 100%;
     position: relative;
-    .labelQWerty {
-      transform: translateX(-50%);
-      &:first-of-type {
-        transform: translateX(0);
-      }
-      &:last-of-type {
-        transform: translateX(-100%);
-      }
+    margin-top: 10px;
+
+    .stepLabel {
+      position: absolute;
     }
   }
 }
