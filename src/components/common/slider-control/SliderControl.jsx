@@ -23,6 +23,32 @@ class SliderControl extends React.Component {
     }
   }
 
+  handleDragThumb(event) {
+    event.stopPropagation();
+    const { left: thumbLeft, right: thumbRight } = this.thumb.getBoundingClientRect();
+    const { left: sliderLeft, right: sliderRight } = this.slider.getBoundingClientRect();
+    const offsetForChangeValueWhileDragging = (sliderRight - sliderLeft) / ((this.props.steps.length - 1) * 2);
+    if (event.clientX > thumbRight + offsetForChangeValueWhileDragging && event.clientX <= sliderRight) {
+      this.stepUp();
+    } else if (event.clientX < thumbLeft - offsetForChangeValueWhileDragging && event.clientX >= sliderLeft) {
+      this.stepDown();
+    }
+    this.setTooltipPosition();
+  }
+
+  handleCaptureDrag() {
+    this.slider.style.pointerEvents = 'none';
+    this.setTooltipPosition();
+    document.addEventListener('mousemove', this.handleDragThumb);
+    document.addEventListener('mouseup', this.handleReleaseDrag);
+  }
+
+  handleReleaseDrag() {
+    this.slider.style.pointerEvents = 'all';
+    document.removeEventListener('mousemove', this.handleDragThumb);
+    document.removeEventListener('mouseup', this.handleReleaseDrag);
+  }
+
   stepDown() {
     this.props.onChange(this.props.value - 1)
   }
@@ -35,43 +61,17 @@ class SliderControl extends React.Component {
     return 100 * index / (this.props.steps.length - 1);
   }
 
-  handleDragThumb(event) {
-    event.stopPropagation();
-    const { left: thumbLeft, right: thumbRight } = this.thumb.getBoundingClientRect();
-    const { left: sliderLeft, right: sliderRight } = this.slider.getBoundingClientRect();
-    const offsetForChangeValueWhileDragging = (sliderRight - sliderLeft) / 8;
-    if (event.clientX > thumbRight + offsetForChangeValueWhileDragging && event.clientX <= sliderRight) {
-      this.stepUp();
-    } else if (event.clientX < thumbLeft - offsetForChangeValueWhileDragging && event.clientX >= sliderLeft) {
-      this.stepDown();
-    }
-    this.setTooltipPosition();
+  getTranslateOffset(index) {
+    return `translateX(${-1 * this.getLeftOffset(index)}%)`
   }
 
   setTooltipPosition() {
     this.tooltip.style.transform = this.getTranslateOffset(this.props.value - 1);
   }
 
-  getTranslateOffset(index) {
-    return `translateX(${-1 * this.getLeftOffset(index)}%)`
-  }
-
   getTooltipContent() {
     const currentStepObj = this.props.steps.find(({ value, tooltip }) => value === this.props.value && tooltip);
     return currentStepObj ? currentStepObj.tooltip : null;
-  }
-
-  handleCaptureDrag() {
-    this.tooltip.style.visibility = 'visible';
-    this.setTooltipPosition();
-    document.addEventListener('mousemove', this.handleDragThumb);
-    document.addEventListener('mouseup', this.handleReleaseDrag);
-  }
-
-  handleReleaseDrag() {
-    this.tooltip.style.visibility = 'hidden';
-    document.removeEventListener('mousemove', this.handleDragThumb);
-    document.removeEventListener('mouseup', this.handleReleaseDrag);
   }
 
   render() {
@@ -86,8 +86,11 @@ class SliderControl extends React.Component {
           className="slider"
         >
           <div className="fillLower" style={{ width: leftOffset }}/>
-          <div
+          <a
             ref={th => this.thumb = th}
+            onClick={event => {
+              event.preventDefault()
+            }}
             className="thumb"
             style={{ left: leftOffset }}
             onMouseDown={this.handleCaptureDrag}
@@ -99,7 +102,7 @@ class SliderControl extends React.Component {
             >
               {this.getTooltipContent()}
             </div>
-          </div>
+          </a>
         </div>
         <div className="stepLabels">
           {

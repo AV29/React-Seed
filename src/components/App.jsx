@@ -33,7 +33,7 @@ class App extends Component {
     this.handleChangeSliderValue = this.handleChangeSliderValue.bind(this);
 
     this.state = {
-      sliderValue: 2
+      sliderValue: 4
     }
   }
 
