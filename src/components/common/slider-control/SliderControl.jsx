@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import './SliderControl.less';
 
-class SliderControl extends React.Component {
+class SliderControl extends Component {
   constructor(props) {
     super(props);
 
@@ -11,9 +11,11 @@ class SliderControl extends React.Component {
     this.handleReleaseDrag = this.handleReleaseDrag.bind(this);
     this.handleDragThumb = this.handleDragThumb.bind(this);
 
+    this.isThumbBeingDragged = false;
   }
 
   handleClickSlider({ clientX: mouseX }) {
+
     const { left: thumbLeft, right: thumbRight } = this.thumb.getBoundingClientRect();
 
     if (mouseX < thumbLeft - 5) {
@@ -23,31 +25,35 @@ class SliderControl extends React.Component {
     }
   }
 
-  handleDragThumb(event) {
-    event.stopPropagation();
+  handleDragThumb({ clientX: mouseX }) {
     const { left: thumbLeft, right: thumbRight } = this.thumb.getBoundingClientRect();
     const { left: sliderLeft, right: sliderRight } = this.slider.getBoundingClientRect();
     const offsetForChangeValueWhileDragging = (sliderRight - sliderLeft) / ((this.props.steps.length - 1) * 2);
-    if (event.clientX > thumbRight + offsetForChangeValueWhileDragging && event.clientX <= sliderRight) {
+    const isMovingRight = mouseX > thumbRight + offsetForChangeValueWhileDragging && mouseX <= sliderRight;
+    const isMovingLeft = mouseX < thumbLeft - offsetForChangeValueWhileDragging && mouseX >= sliderLeft;
+    if (isMovingRight) {
       this.stepUp();
-    } else if (event.clientX < thumbLeft - offsetForChangeValueWhileDragging && event.clientX >= sliderLeft) {
+    } else if (isMovingLeft) {
       this.stepDown();
     }
     this.setTooltipPosition();
   }
 
   handleCaptureDrag() {
-    this.slider.style.pointerEvents = 'none';
     this.setTooltipPosition();
+    this.toggleMouseEventsDuringDrag(this.slider);
     document.addEventListener('mousemove', this.handleDragThumb);
     document.addEventListener('mouseup', this.handleReleaseDrag);
   }
 
   handleReleaseDrag() {
-    this.slider.style.pointerEvents = 'all';
+    this.toggleMouseEventsDuringDrag(this.slider);
     document.removeEventListener('mousemove', this.handleDragThumb);
     document.removeEventListener('mouseup', this.handleReleaseDrag);
   }
+
+  /**ToDo: Works with assumption that values given in steps are incremental and starts with 1
+   * ToDo: Need to adjust steps with id fields. */
 
   stepDown() {
     this.props.onChange(this.props.value - 1)
@@ -55,6 +61,16 @@ class SliderControl extends React.Component {
 
   stepUp() {
     this.props.onChange(this.props.value + 1)
+  }
+
+  /**
+   * Handling situation when mouseDown event starts on thumb but release ends on slider thus causing sliders onClick.
+   * Even with stopPropagation being called.
+   * Event only stops propagation if release phase was while over the same element.
+   * */
+  toggleMouseEventsDuringDrag(element) {
+    this.isThumbBeingDragged = !this.isThumbBeingDragged;
+    element.style.pointerEvents = this.isThumbBeingDragged ? 'none' : 'all';
   }
 
   getLeftOffset(index) {
@@ -88,11 +104,9 @@ class SliderControl extends React.Component {
           <div className="fillLower" style={{ width: leftOffset }}/>
           <a
             ref={th => this.thumb = th}
-            onClick={event => {
-              event.preventDefault()
-            }}
             className="thumb"
             style={{ left: leftOffset }}
+            onClick={event => event.preventDefault()}
             onMouseDown={this.handleCaptureDrag}
             onDragStart={() => false}
           >
