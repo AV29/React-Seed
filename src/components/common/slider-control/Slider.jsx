@@ -1,7 +1,34 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import './Slider.less';
-
+/**
+ * @description Slider component.
+ * Represents a Slider control with click for increase/decrease functionality and draggability.
+ * @example
+ <SliderControl
+ label="Slider Example"
+ value={this.state.sliderValue}
+ simpleValue={false}
+ onChange={this.handleChangeSliderValue}
+ steps={[
+              { value: 10, label: 'Fast', tooltip: 'Fastest, Test Feasibility' },
+              { value: 223, tooltip: 'Fast, Basic Search' },
+              { value: 312, label: 'Balanced', tooltip: 'Default' },
+              { value: 43, tooltip: 'Slower, Expanded Search' },
+              { value: 56, label: 'Detailed', tooltip: 'Slowest, Advanced Search' }
+            ]}
+ />
+ * @class
+ * @name Slider
+ * @param {object} props Properties for Slider component.
+ * @param {string} props.label A Label for Slider Control.
+ * @param {number | object} props.value Actual value of Slider. Required.
+ * @param {function} props.onChange Function to handle value change. Required.
+ * @param {string} props.className Class name to extend Slider's styles.
+ * @param {boolean} props.style Additional styles for Slider
+ * @param {string} props.simpleValue Defines whether returned value in onChange would be an entire object or just a number value. Default - 'true'
+ * @param {array} props.steps An array of objects representing steps for Slider control. Each consists of value (required), tooltip (optional) and label (optional). Required.
+ */
 class Slider extends Component {
 
   /** Handling actual index-value and thus not being depend on whether passed values are incremental and starting from 1 or not */
@@ -121,10 +148,13 @@ class Slider extends Component {
   }
 
   render() {
-    const { label, style } = this.props;
+    const { label, style, className } = this.props;
     const leftOffset = `${this.getLeftOffset(this.state.value)}%`;
     return (
-      <div className="sliderControl" style={style}>
+      <div
+        className={`sliderControl ${className}`}
+        style={style}
+      >
         {label && <div className="label">{label}</div>}
         <div
           ref={slider => this.slider = slider}
@@ -175,10 +205,11 @@ Slider.propTypes = {
     label: PropTypes.string,
     tooltip: PropTypes.string
   })).isRequired,
-  value: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
+  value: PropTypes.oneOfType([PropTypes.number, PropTypes.object]).isRequired,
   simpleValue: PropTypes.bool,
-  onChange: PropTypes.func,
+  onChange: PropTypes.func.isRequired,
   label: PropTypes.string,
+  className: PropTypes.string,
   style: PropTypes.object
 };
 
