@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import NestedComponent from './nested-component/NestedComponent';
 import styled, { ThemeProvider } from 'styled-components';
 import HookExample from "./hooks/HooksSample";
-import SliderControl from "../components/common/slider-control/SliderControl";
+import SliderControl from "./common/slider-control/Slider";
 
 const h1FontSize = 20;
 
@@ -33,7 +33,7 @@ class App extends Component {
     this.handleChangeSliderValue = this.handleChangeSliderValue.bind(this);
 
     this.state = {
-      sliderValue: 1
+      sliderValue: 2
     }
   }
 
@@ -53,13 +53,14 @@ class App extends Component {
           <SliderControl
             label="Slider Example"
             value={this.state.sliderValue}
+            simpleValue={false}
             onChange={this.handleChangeSliderValue}
             steps={[
-              { value: 1, label: 'Fast', tooltip: 'Fastest, Test Feasibility' },
-              { value: 2, tooltip: 'Fast, Basic Search' },
-              { value: 3, label: 'Balanced', tooltip: 'Default' },
-              { value: 4, tooltip: 'Slower, Expanded Search' },
-              { value: 5, label: 'Detailed', tooltip: 'Slowest, Advanced Search' }
+              { value: 10, label: 'Fast', tooltip: 'Fastest, Test Feasibility' },
+              { value: 223, tooltip: 'Fast, Basic Search' },
+              { value: 312, label: 'Balanced', tooltip: 'Default' },
+              { value: 43, tooltip: 'Slower, Expanded Search' },
+              { value: 56, label: 'Detailed', tooltip: 'Slowest, Advanced Search' }
             ]}
           />
         </AppWrapper>

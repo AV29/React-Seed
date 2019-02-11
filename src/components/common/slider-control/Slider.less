@@ -20,6 +20,7 @@
 
     .thumb {
       cursor: default;
+      padding: 0;
       width: 7px;
       height: @thumb-height;
       border-radius: 4px;
@@ -28,21 +29,24 @@
       top: @slider-height / 2;
       border: 1px solid white;
       transform: translateY(-50%);
+
       .tooltip {
         visibility: hidden;
         position: absolute;
         top: -150%;
         background: #000000;
         color: #ffffff;
-        padding: 5px;
         font-size: 1.2rem;
         white-space: nowrap;
       }
+
       &:hover {
         opacity: .5;
       }
+
       &:active {
         opacity: 1;
+
         .tooltip {
           visibility: visible;
         }
@@ -67,5 +71,3 @@
     }
   }
 }
-
-
