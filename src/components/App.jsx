@@ -53,7 +53,6 @@ class App extends Component {
           <SliderControl
             label="Slider Example"
             value={this.state.sliderValue}
-            simpleValue={false}
             onChange={this.handleChangeSliderValue}
             steps={[
               { value: 10, label: 'Fast', tooltip: 'Fastest, Test Feasibility' },

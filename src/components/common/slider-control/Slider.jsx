@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import './Slider.less';
+
 /**
  * @description Slider component.
  * Represents a Slider control with click for increase/decrease functionality and draggability.
@@ -29,22 +30,23 @@ import './Slider.less';
  * @param {string} props.simpleValue Defines whether returned value in onChange would be an entire object or just a number value. Default - 'true'
  * @param {array} props.steps An array of objects representing steps for Slider control. Each consists of value (required), tooltip (optional) and label (optional). Required.
  */
-class Slider extends Component {
+class Slider extends PureComponent {
 
-  /** Handling actual index-value and thus not being depend on whether passed values are incremental and starting from 1 or not */
-  static getDerivedStateFromProps(props) {
-    const index = props.steps.findIndex(({ value }) => value === Slider.getProperValue(props));
-    return {
-      value: index > 0 ? index : 0
-    };
+  static getDerivedStateFromProps(props, state) {
+    const index = Slider.getIndex(props);
+    return state.index !== index ? { index } : null;
   }
 
-  static getProperValue({ value, simpleValue }) {
-    if (simpleValue) {
-      return value;
-    } else {
-      return typeof value === 'object' ? value.value : value;
-    }
+  static getIndex({ steps, simpleValue, value: passedValue }) {
+    /** Comparing ways:
+     * 1) If simpleValue,
+     * 2) If !simpleValue,
+     * 3) If !simpleValue but initialValue passed as primitive
+     * */
+    const index = steps.findIndex(({ value }) =>
+      value === (!simpleValue ? (passedValue.value || passedValue) : passedValue)
+    );
+    return index > 0 ? index : 0;
   }
 
   constructor(props) {
@@ -57,9 +59,8 @@ class Slider extends Component {
 
     this.isThumbBeingDragged = false;
 
-    this.state = {
-      value: props.steps.findIndex(({ value }) => value === Slider.getProperValue(props))
-    };
+    this.state = { index: 0 };
+
   }
 
   getThumbDragDirection(mouseX) {
@@ -88,11 +89,9 @@ class Slider extends Component {
     } else if (isMovingLeft) {
       this.stepDown();
     }
-    this.setTooltipPosition();
   }
 
   handleCaptureDrag() {
-    this.setTooltipPosition();
     this.toggleMouseEventsOnDrag(this.slider);
     document.addEventListener('mousemove', this.handleDragThumb);
     document.addEventListener('mouseup', this.handleReleaseDrag);
@@ -105,15 +104,15 @@ class Slider extends Component {
   }
 
   stepDown() {
-    this.step(this.state.value - 1);
+    this.step(this.state.index - 1);
   }
 
   stepUp() {
-    this.step(this.state.value + 1);
+    this.step(this.state.index + 1);
   }
 
   step(index) {
-    const { simpleValue, steps, onChange } = this.props;
+    const { steps, onChange, simpleValue } = this.props;
     const nextValue = simpleValue ? steps[index].value : steps[index];
     onChange(nextValue);
   }
@@ -132,66 +131,53 @@ class Slider extends Component {
     return 100 * index / (this.props.steps.length - 1);
   }
 
-  getTranslateOffset(index) {
-    return `translateX(${-1 * this.getLeftOffset(index)}%)`;
-  }
-
-  setTooltipPosition() {
-    this.tooltip.style.transform = this.getTranslateOffset(this.state.value);
-  }
-
-  getTooltipContent() {
-    const tooltipContent = this.props.steps[this.state.value].tooltip;
-    return tooltipContent
-      ? <div style={{ padding: 5 }}>{tooltipContent}</div>
-      : null;
-  }
-
   render() {
-    const { label, style, className } = this.props;
-    const leftOffset = `${this.getLeftOffset(this.state.value)}%`;
+    const { index } = this.state;
+    const { label, style, steps } = this.props;
+    const { tooltip } = steps[index];
+    const leftOffset = this.getLeftOffset(index);
+
     return (
-      <div
-        className={`sliderControl ${className}`}
-        style={style}
-      >
+      <div className="sliderControl" style={style}>
         {label && <div className="label">{label}</div>}
         <div
           ref={slider => this.slider = slider}
           onClick={this.handleClickSlider}
           className="slider"
         >
-          <div className="fillLower" style={{ width: leftOffset }}/>
+          <div className="fillLower" style={{ width: `${leftOffset}%` }}/>
           <button
             ref={th => this.thumb = th}
             className="thumb"
-            style={{ left: leftOffset }}
-            onClick={event => event.preventDefault()}
+            style={{ left: `${leftOffset}%` }}
             onMouseDown={this.handleCaptureDrag}
             onDragStart={() => false}
           >
             <div
-              ref={tt => this.tooltip = tt}
               className="tooltip"
+              style={{ transform: `transform(${-1 * leftOffset})` }}
             >
-              {this.getTooltipContent()}
+              {tooltip && <div style={{ padding: 5 }}>{tooltip}</div>}
             </div>
           </button>
         </div>
         <div className="stepLabels">
           {
-            this.props.steps.map(({ label }, index) => label && (
-              <span
-                key={index}
-                className="stepLabel label"
-                style={{
-                  left: `${this.getLeftOffset(index)}%`,
-                  transform: this.getTranslateOffset(index)
-                }}
-              >
-                {label}
-              </span>
-            ))
+            steps.map(({ label }, index) => {
+              const offset = this.getLeftOffset(index);
+              return label && (
+                <span
+                  key={index}
+                  className="stepLabel label"
+                  style={{
+                    left: `${offset}%`,
+                    transform: `transform(${-1 * offset})`
+                  }}
+                >
+                  {label}
+                </span>
+              );
+            })
           }
         </div>
       </div>
@@ -205,11 +191,10 @@ Slider.propTypes = {
     label: PropTypes.string,
     tooltip: PropTypes.string
   })).isRequired,
-  value: PropTypes.oneOfType([PropTypes.number, PropTypes.object]).isRequired,
+  value: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
   simpleValue: PropTypes.bool,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   label: PropTypes.string,
-  className: PropTypes.string,
   style: PropTypes.object
 };
 
