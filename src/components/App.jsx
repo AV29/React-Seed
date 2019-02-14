@@ -99,16 +99,16 @@ class App extends Component {
           <SliderControl
             label="Slider Example"
             value={this.state.sliderValue}
+            jumpToClickedPosition
             onChange={this.handleChangeSliderValue}
             min={1}
-            max={8}
-            step={2}
+            max={5}
             info={{
-              1: { tickMark: 3},
+              1: { tickMark: 'Fast'},
               2: { tooltip: 'Fast, Basic Search' },
               3: { tickMark: 'Balanced'},
               4: { tooltip: 'Slower, Expanded Search' },
-              5: { tooltip: 'Wow', tickMark: 'Detailed'}
+              5: { tickMark: 'Detailed'}
             }}
           />
           {/*<Parent/>*/}

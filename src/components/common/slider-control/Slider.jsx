@@ -1,36 +1,7 @@
 import React, { PureComponent } from 'react';
-import { arrayOf, shape, number, string, func, object, objectOf, checkPropTypes, oneOfType } from 'prop-types';
+import { arrayOf, shape, number, string, func, object, objectOf, oneOfType, bool } from 'prop-types';
 import './Slider.less';
 
-/**
- * @description Slider component.
- * Represents a Slider control with click for increase/decrease functionality and draggability.
- * @example
- <SliderControl
- label="Slider Example"
- value={this.state.sliderValue}
- simpleValue={false}
- onChange={this.handleChangeSliderValue}
- steps={[
-              { value: 10, label: 'Fast', tooltip: 'Fastest, Test Feasibility' },
-              { value: 223, tooltip: 'Fast, Basic Search' },
-              { value: 312, label: 'Balanced', tooltip: 'Default' },
-              { value: 43, tooltip: 'Slower, Expanded Search' },
-              { value: 56, label: 'Detailed', tooltip: 'Slowest, Advanced Search' }
-            ]}
- />
- * @class
- * @name Slider
- * @param {object} props Properties for Slider component.
- * @param {string} props.label A Label for Slider Control.
- * @param {number | object} props.value Actual value of Slider. Required.
- * @param {function} props.onChange Function to handle value change. Required.
- * @param {string} props.className Class name to extend Slider's styles.
- * @param {boolean} props.style Additional styles for Slider
- * @param {string} props.simpleValue Defines whether returned value in onChange would be an entire object or just a number value. Default - 'true'
- * @param {array} props.steps An array of objects representing steps for Slider control. Each consists of value (required), tooltip (optional) and label (optional). Required.
- * @param {array} props.tickMarks An array of strings representing tick marks.
- */
 class Slider extends PureComponent {
 
   constructor (props) {
@@ -46,10 +17,14 @@ class Slider extends PureComponent {
 
   }
 
+  getSectionWidth () {
+    const { left: sliderLeft, right: sliderRight } = this.track.getBoundingClientRect();
+    return (sliderRight - sliderLeft) / (this.props.max - this.props.min);
+  }
+
   getThumbDragDirection (mouseX) {
     const { left: thumbLeft, right: thumbRight } = this.thumb.getBoundingClientRect();
-    const { left: sliderLeft, right: sliderRight } = this.slider.getBoundingClientRect();
-    const sectionWidth = (sliderRight - sliderLeft) / (this.props.max - this.props.min);
+    const sectionWidth = this.getSectionWidth();
     return {
       isMovingRight: mouseX > thumbRight + (sectionWidth * this.props.step / 2),
       isMovingLeft: mouseX < thumbLeft - (sectionWidth * this.props.step / 2)
@@ -66,6 +41,10 @@ class Slider extends PureComponent {
   handleClickSlider ({ clientX: mouseX }) {
     const { maxReached, minReached } = this.getReachedBounds();
     const { left: thumbLeft, right: thumbRight } = this.thumb.getBoundingClientRect();
+    if (this.props.jumpToClickedPosition) {
+      this.props.onChange(Math.round(mouseX / this.getSectionWidth()) + 1);
+      return;
+    }
     if (mouseX < thumbLeft - 5 && !minReached) {
       this.decrease();
     } else if (mouseX > thumbRight + 5 && !maxReached) {
@@ -84,13 +63,13 @@ class Slider extends PureComponent {
   }
 
   handleCaptureDrag () {
-    this.toggleMouseEventsOnDrag(this.slider);
+    this.toggleMouseEventsOnDrag(this.track);
     document.addEventListener('mousemove', this.handleDragThumb);
     document.addEventListener('mouseup', this.handleReleaseDrag);
   }
 
   handleReleaseDrag () {
-    this.toggleMouseEventsOnDrag(this.slider);
+    this.toggleMouseEventsOnDrag(this.track);
     document.removeEventListener('mousemove', this.handleDragThumb);
     document.removeEventListener('mouseup', this.handleReleaseDrag);
   }
@@ -158,12 +137,12 @@ class Slider extends PureComponent {
     const tooltip = this.getCurrentTooltip();
 
     return (
-      <div className="sliderControl" style={style}>
+      <div className="slider" style={style}>
         {label && <div className="label">{label}</div>}
         <div
-          ref={slider => this.slider = slider}
+          ref={track => this.track = track}
           onClick={this.handleClickSlider}
-          className="slider"
+          className="track"
         >
           <div className="fillLower" style={{ width: `${leftOffset}%` }}/>
           <button
@@ -193,6 +172,7 @@ Slider.propTypes = {
   max: number.isRequired,
   value: number.isRequired,
   onChange: func.isRequired,
+  jumpToClickedPosition: bool,
   label: string,
   style: object,
   info: (objectOf(shape({
@@ -202,6 +182,7 @@ Slider.propTypes = {
 };
 
 Slider.defaultProps = {
+  jumpToClickedPosition: false,
   step: 1,
   min: 1,
   max: 2,
